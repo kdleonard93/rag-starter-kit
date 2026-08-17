@@ -13,12 +13,12 @@ const loader = new DirectoryLoader('./data', {
 });
 
 const docs = await loader.load();
-console.log(`\n📄 1. Documents Loaded: ${docs.length} document(s) found.`);
+console.log(`1. Documents Loaded: ${docs.length} document(s) found.`);
 
 // 2. Chunking
 const splitter = new RecursiveCharacterTextSplitter({ chunkSize: 500, chunkOverlap: 50 })
 const chunks = await splitter.splitDocuments(docs)
-console.log(`✂️ 2. Documents Chunked: Split into ${chunks.length} total chunk(s).`);
+console.log(`2. Documents Chunked: Split into ${chunks.length} total chunk(s).`);
 
 
 // 3. Embedding
@@ -28,14 +28,14 @@ const embeddings = new OllamaEmbeddings({
 });
 
 const vectorStore = await MemoryVectorStore.fromDocuments(chunks, embeddings)
-console.log(`🧠 3. Chunks Embedded & Stored: All ${chunks.length} chunk(s) are now in the vector store.\n`);
+console.log(`3. Chunks Embedded & Stored: All ${chunks.length} chunk(s) are now in the vector store.\n`);
 
 
 // .4 Retrieving
-const question = 'What does Digital Dopamine charge for a RAG integration?';
+const question = 'Give me a summary of Digital Dopamine.';
 const results = await vectorStore.similaritySearch(question, 3)
 
-console.log(`🔍 4. Retrieved Chunks for question: "${question}"`);
+console.log(`4. Retrieved Chunks for question: "${question}"`);
 console.log("--------------------------------------------------");
 results.forEach((r, i) => {
   console.log(`\n--- Chunk ${i + 1} (Source: ${r.metadata.source}) ---`);
@@ -62,7 +62,7 @@ Question: {question}
 `);
 
 const chain = prompt.pipe(llm);
-console.log(`⏳ 5. Generating answer... \n`);
+console.log(`5. Generating answer... \n`);
 
 const response = await chain.invoke({ context, question });
 console.log("🤖 Model's Answer:");
