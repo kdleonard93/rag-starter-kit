@@ -1,9 +1,18 @@
 services:
   chroma:
-    image: chromadb/chroma:latest
+    image: chromadb/chroma:1.5.9
+    container_name: rag-starter-kit-chroma-1
     ports:
       - '8000:8000'
     volumes:
-      - chroma-data:/chroma/chroma
+      - chroma-data:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/api/v2/heartbeat"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+    restart: unless-stopped
+
 volumes:
   chroma-data:

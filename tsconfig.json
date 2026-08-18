@@ -9,5 +9,5 @@
     "strict": true,
     "types": ["node"]
   },
-  "include": ["src/**/*.ts", "rag.config.ts"]
+  "include": ["core/**/*.ts", "rag.config.ts"]
 }
