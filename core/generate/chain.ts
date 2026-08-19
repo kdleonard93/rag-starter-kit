@@ -1,17 +1,89 @@
 import { ChatOllama } from '@langchain/ollama';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { basename } from 'node:path';
 import type { RagConfig } from '../config.js';
 import type { RetrievedChunk } from '../retrieve/retriever.js';
 
 const PROMPT = ChatPromptTemplate.fromTemplate(`
-You are a helpful assistant. Answer the question using ONLY the context below.
-If the answer is not in the context, say "I don't have that information in the provided documents."
+You are a grounded Q&A assistant for a small business.
+Answer ONLY from the context below. For every claim, cite the source as [N] matching the numbered sources.
+If the answer is not fully supported by the context, respond ONLY with:
+"I don't have that information in the provided documents."
 
-Context:
-{context}
+Context (numbered):
+{numberedContext}
 
 Question: {question}
 `);
+
+export interface Citation {
+  n: number;
+  source: string;
+  excerpt?: string;
+}
+
+// Show just the filename, not a path — citations are user-facing and a path
+// (absolute OR relative) leaks internal structure. URLs pass through unchanged.
+function formatSource(source: string | undefined | null): string {
+  if (!source) return 'unknown';
+  if (source.startsWith('http://') || source.startsWith('https://')) return source;
+  return basename(source);
+}
+
+export function buildNumberedContext(
+  chunks: RetrievedChunk[],
+): { numberedContext: string; citationMap: Map<number, Citation> } {
+  const citationMap = new Map<number, Citation>();
+  const parts: string[] = [];
+
+  chunks.forEach((c, i) => {
+    const n = i + 1;
+    parts.push(`[${n}] ${c.pageContent}`);
+    citationMap.set(n, {
+      n,
+      source: formatSource(c.metadata?.source as string),
+      excerpt: c.pageContent.slice(0, 120),
+    });
+  });
+
+  return { numberedContext: parts.join('\n\n'), citationMap };
+}
+
+export interface AnswerResult {
+  text: string;
+  citations: Citation[];
+}
+
+const CITE_RE = /\[(\d+)\]/g;
+
+export async function answer(
+  cfg: Pick<RagConfig, 'llm'>,
+  question: string,
+  chunks: RetrievedChunk[],
+): Promise<AnswerResult> {
+  const { numberedContext, citationMap } = buildNumberedContext(chunks);
+  const chain = buildChain(cfg);
+  const response = await chain.invoke({ numberedContext, question });
+  const raw = typeof response === 'string' ? response : (response as { content?: string }).content ?? String(response);
+
+  const claimed = new Set<number>();
+  let m: RegExpExecArray | null = CITE_RE.exec(raw);
+  while (m !== null) {
+    claimed.add(Number(m[1]));
+    m = CITE_RE.exec(raw);
+  }
+  const validNs = [...claimed].filter((n) => citationMap.has(n));
+  const validSet = new Set(validNs);
+
+  const text = raw.replace(CITE_RE, (full, n) => (validSet.has(Number(n)) ? full : ''));
+
+  const citations = validNs
+    .sort((a, b) => a - b)
+    .map((n) => citationMap.get(n)!)
+    .filter(Boolean);
+
+  return { text, citations };
+}
 
 export function buildChain(cfg: Pick<RagConfig, 'llm'>) {
   const llm = new ChatOllama({
@@ -31,8 +103,9 @@ export async function generate(
   chunks: RetrievedChunk[],
 ): Promise<string> {
   const chain = buildChain(cfg);
+  const { numberedContext } = buildNumberedContext(chunks);
   const response = await chain.invoke({
-    context: buildContext(chunks),
+    numberedContext,
     question,
   });
   return typeof response === 'string' ? response : (response as { content?: string }).content ?? String(response);
