@@ -10,7 +10,7 @@ export interface RetrievedChunk {
 export async function retrieve(
   collection: Collection,
   question: string,
-  k = 3,
+  k = 5,
 ): Promise<RetrievedChunk[]> {
   const result = await collection.query({
     queryTexts: [question],

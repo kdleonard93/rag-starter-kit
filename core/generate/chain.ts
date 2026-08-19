@@ -6,14 +6,21 @@ import type { RetrievedChunk } from '../retrieve/retriever.js';
 
 const PROMPT = ChatPromptTemplate.fromTemplate(`
 You are a grounded Q&A assistant for a small business.
-Answer ONLY from the context below. For every claim, cite the source as [N] matching the numbered sources.
-If the answer is not fully supported by the context, respond ONLY with:
+
+STRICT RULES:
+1. Answer ONLY using the numbered context below. Never use your own training knowledge, even if you "know" the answer.
+2. Every sentence in your answer MUST end with a citation in the form [N], where N matches a numbered source from the context. If you cannot support a claim with a source, do not include it.
+3. Do not paraphrase from memory. Only repeat what the context states.
+4. If the context does not contain the answer, or does not fully support an answer, respond ONLY with:
 "I don't have that information in the provided documents."
+5. Never answer questions about prices, dates, facts, people, places, or any entity not mentioned in the context. Refuse instead.
 
 Context (numbered):
 {numberedContext}
 
 Question: {question}
+
+Answer (cite [N] after every claim, or refuse):
 `);
 
 export interface Citation {

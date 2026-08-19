@@ -1,0 +1,86 @@
+[
+  {
+    "question": "What does Digital Dopamine charge for a RAG integration?",
+    "mustCiteSource": "rag-faq.md",
+    "mustContain": null,
+    "mustRefuse": false
+  },
+  {
+    "question": "Is Digital Dopamine an LLC?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "Does Digital Dopamine have a Youtube Channel?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "What is RAG?",
+    "mustCiteSource": "rag-faq.md",
+    "mustContain": null,
+    "mustRefuse": false
+  },
+  {
+    "question": "What is the RAG starter kit that Digital Dopamine offers?",
+    "mustCiteSource": "rag-faq.md",
+    "mustContain": null,
+    "mustRefuse": false
+  },
+  {
+    "question": "How can i get started with implementation?",
+    "mustCiteSource": "rag-faq.md",
+    "mustContain": null,
+    "mustRefuse": false
+  },
+  {
+    "question": "What is the tech stack?",
+    "mustCiteSource": "rag-faq.md",
+    "mustContain": null,
+    "mustRefuse": false
+  },
+  {
+    "question": "Can i use local models like Gemma 4 or MiniMax 3 only? Or are frontier models required?",
+    "mustCiteSource": "rag-faq.md",
+    "mustContain": null,
+    "mustRefuse": false
+  },
+  {
+    "question": "What's the capital of France?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "What is Chicago's ticket cost?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "What's the capital of Wisconsin?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "How many calories does butter burgers have?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "Am I pretty?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  },
+  {
+    "question": "When did Sinners release in theaters?",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  }
+]

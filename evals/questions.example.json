@@ -1,0 +1,14 @@
+[
+  {
+    "question": "{write an in-scope question. Make 5-8}",
+    "mustCiteSource": "example.md",
+    "mustContain": ["$"],
+    "mustRefuse": false
+  },
+  {
+    "question": "{write an in-scope question. Make 3-5}",
+    "mustCiteSource": null,
+    "mustContain": ["I don't have that information"],
+    "mustRefuse": true
+  }
+]
