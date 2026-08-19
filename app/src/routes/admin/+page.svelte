@@ -1,4 +1,6 @@
 <script lang="ts">
+  import posthog from 'posthog-js';
+
   let status: 'idle' | 'loading' | 'done' | 'error' = 'idle';
   let result: string | null = null;
 
@@ -10,6 +12,7 @@
       const data = await res.json();
       status = 'done';
       result = `Re-indexed ${data.chunks} chunk(s).`;
+      posthog.capture('knowledge_base_reindexed', { chunk_count: data.chunks });
     } else {
       status = 'error';
       result = `Failed: ${res.status} ${res.statusText}`;

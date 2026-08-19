@@ -1,4 +1,6 @@
 <script lang="ts">
+  import posthog from 'posthog-js';
+
   let question = '';
   let messages: { role: 'user' | 'assistant'; text: string; citations?: any[] }[] = [];
   let loading = false;
@@ -7,6 +9,7 @@
     event.preventDefault();
     if (!question.trim()) return;
     messages = [...messages, { role: 'user', text: question }];
+    posthog.capture('chat_question_submitted');
     loading = true;
     const res = await fetch('/api/chat', {
       method: 'POST',

@@ -1,26 +1,22 @@
 import { ChatOllama } from '@langchain/ollama';
 import { ChatPromptTemplate } from '@langchain/core/prompts';
+import { ChatPromptValue } from '@langchain/core/prompt_values';
+import { RunnableLambda } from '@langchain/core/runnables';
 import { basename } from 'node:path';
 import type { RagConfig } from '../config.js';
 import type { RetrievedChunk } from '../retrieve/retriever.js';
+import OpenAI from 'openai';
 
 const PROMPT = ChatPromptTemplate.fromTemplate(`
-You are a grounded Q&A assistant for a small business.
+  You are a grounded Q&A assistant for a small business.
+  Answer ONLY from the context below. For every claim, cite the source as [N] matching the numbered sources.
+  If the answer is not fully supported by the context, respond ONLY with:
+  "I don't have that information in the provided documents."
 
-STRICT RULES:
-1. Answer ONLY using the numbered context below. Never use your own training knowledge, even if you "know" the answer.
-2. Every sentence in your answer MUST end with a citation in the form [N], where N matches a numbered source from the context. If you cannot support a claim with a source, do not include it.
-3. Do not paraphrase from memory. Only repeat what the context states.
-4. If the context does not contain the answer, or does not fully support an answer, respond ONLY with:
-"I don't have that information in the provided documents."
-5. Never answer questions about prices, dates, facts, people, places, or any entity not mentioned in the context. Refuse instead.
+  Context (numbered):
+  {numberedContext}
 
-Context (numbered):
-{numberedContext}
-
-Question: {question}
-
-Answer (cite [N] after every claim, or refuse):
+  Question: {question}
 `);
 
 export interface Citation {
@@ -29,8 +25,14 @@ export interface Citation {
   excerpt?: string;
 }
 
-// Show just the filename, not a path — citations are user-facing and a path
-// (absolute OR relative) leaks internal structure. URLs pass through unchanged.
+export interface AnswerResult {
+  text: string;
+  citations: Citation[];
+}
+
+const CITE_RE = /\[(\d+)\]/g;
+
+// Show just the filename, not a path
 function formatSource(source: string | undefined | null): string {
   if (!source) return 'unknown';
   if (source.startsWith('http://') || source.startsWith('https://')) return source;
@@ -56,12 +58,71 @@ export function buildNumberedContext(
   return { numberedContext: parts.join('\n\n'), citationMap };
 }
 
-export interface AnswerResult {
-  text: string;
-  citations: Citation[];
+type LLMConfig = RagConfig['llm'];
+
+function activeLLM(llm: LLMConfig) {
+  return llm.active === 'openrouter' ? llm.openrouter : llm.ollama;
 }
 
-const CITE_RE = /\[(\d+)\]/g;
+
+function buildChain(cfg: Pick<RagConfig, 'llm'>) {
+  const llm = activeLLM(cfg.llm);
+
+  if (llm.provider === 'openrouter') {
+    // Guard: fail loudly if cloud is active but the key is missing.
+    // Saves you (or a client) from a mysterious 401 an hour into debugging.
+    if (!llm.apiKey) {
+      throw new Error(
+        "OPENROUTER_API_KEY is not set but llm.active is 'openrouter'. " +
+        'Add it to .env (repo root) and app/.env, or set llm.active back to \'ollama\'.',
+      );
+    }
+
+    const client = new OpenAI({
+      apiKey: llm.apiKey,
+      baseURL: llm.baseUrl,
+    });
+
+    // Wrap the OpenAI call in a RunnableLambda so it has the same
+    // .invoke({ numberedContext, question }) contract as the Ollama pipe below.
+    const model = RunnableLambda.from(async (input: ChatPromptValue) => {
+      const messages = input.toChatMessages().map((m): OpenAI.Chat.Completions.ChatCompletionMessageParam => {
+        const t = m.getType();
+        if (t === 'human') return { role: 'user', content: m.content as string };
+        if (t === 'ai')    return { role: 'assistant', content: m.content as string };
+        return { role: 'system', content: m.content as string };
+      });
+
+      const res = await client.chat.completions.create({
+        model: llm.model,
+        messages,
+      });
+      return { content: res.choices[0]?.message?.content ?? '' };
+    });
+
+    return PROMPT.pipe(model);
+  }
+
+  const model = new ChatOllama({
+    model: llm.model,
+    baseUrl: llm.baseUrl,
+  });
+  return PROMPT.pipe(model);
+}
+
+export async function generate(
+  cfg: Pick<RagConfig, 'llm'>,
+  question: string,
+  chunks: RetrievedChunk[],
+): Promise<string> {
+  const chain = buildChain(cfg);
+  const { numberedContext } = buildNumberedContext(chunks);
+  const response = await chain.invoke({
+    numberedContext,
+    question,
+  });
+  return typeof response === 'string' ? response : (response as { content?: string }).content ?? String(response);
+}
 
 export async function answer(
   cfg: Pick<RagConfig, 'llm'>,
@@ -90,30 +151,4 @@ export async function answer(
     .filter(Boolean);
 
   return { text, citations };
-}
-
-export function buildChain(cfg: Pick<RagConfig, 'llm'>) {
-  const llm = new ChatOllama({
-    model: cfg.llm.model,
-    baseUrl: cfg.llm.baseUrl,
-  });
-  return PROMPT.pipe(llm);
-}
-
-export function buildContext(chunks: RetrievedChunk[]): string {
-  return chunks.map((c) => c.pageContent).join('\n\n---\n\n');
-}
-
-export async function generate(
-  cfg: Pick<RagConfig, 'llm'>,
-  question: string,
-  chunks: RetrievedChunk[],
-): Promise<string> {
-  const chain = buildChain(cfg);
-  const { numberedContext } = buildNumberedContext(chunks);
-  const response = await chain.invoke({
-    numberedContext,
-    question,
-  });
-  return typeof response === 'string' ? response : (response as { content?: string }).content ?? String(response);
 }

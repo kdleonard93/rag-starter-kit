@@ -3,6 +3,11 @@ export type WebSource = { type: 'web'; urls: string[] };
 export type GDriveSource = { type: 'gdrive'; folderId: string };
 export type Source = FolderSource | WebSource | GDriveSource;
 
+export type LLMProvider =
+  | { provider: 'ollama'; model: string; baseUrl: string }
+  | { provider: 'openrouter'; model: string; apiKey: string; baseUrl: string };
+
+
 export default {
   sources: [
     { type: 'folder', path: './data', glob: '**/*.{md,txt}' },
@@ -13,16 +18,28 @@ export default {
   embeddings: {
     provider: 'ollama',
     model: 'nomic-embed-text',
-    baseUrl: 'http://localhost:11434',
+    baseUrl: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
   },
   vectorStore: {
     provider: 'chroma',
-    url: 'http://localhost:8000',
+    url: process.env.CHROMA_URL ?? 'http://localhost:8000',
     collection: 'rag-kit',
   },
   llm: {
-    provider: 'ollama',
-    model: 'gemma3:4b',
-    baseUrl: 'http://localhost:11434',
+    active: 'ollama' as 'ollama' | 'openrouter',
+    ollama: {
+      provider: 'ollama',
+      model: 'gemma3:4b',
+      baseUrl: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
+    } as LLMProvider,
+    openrouter: {
+      provider: 'openrouter',
+      model: 'z-ai/glm-5.2', // comment out/un-comment models when switching.
+      // model: 'moonshotai/kimi-k3',
+      // model: 'google/gemma-4-31b',
+      // model: 'minimax/minimax-m3',
+      apiKey: process.env.OPENROUTER_API_KEY ?? '',
+      baseUrl: 'https://openrouter.ai/api/v1',
+    } as LLMProvider,
   },
 };

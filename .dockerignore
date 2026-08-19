@@ -1,0 +1,15 @@
+.git
+.svelte-kit
+node_modules
+**/node_modules
+app/build
+app/.svelte-kit
+chroma-data
+ollama-data
+*.log
+.env
+.env.*
+!.env.example
+evals
+docs
+*.pdf

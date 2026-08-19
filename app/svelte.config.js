@@ -8,6 +8,9 @@ const config = {
     alias: {
       $core: resolve('./../core'),
     },
+    paths: {
+      relative: false,
+    },
   },
 };
 

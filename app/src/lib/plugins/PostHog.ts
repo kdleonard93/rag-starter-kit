@@ -1,26 +1,16 @@
 import type { PostHogConfig } from 'posthog-js';
-import { PUBLIC_POSTHOG_KEY } from '$env/static/public';
-
-
-console.info('🔍 PostHog: Config file loaded');
+import { PUBLIC_POSTHOG_HOST, PUBLIC_POSTHOG_PROJECT_TOKEN } from '$env/static/public';
 
 export const posthogConfig: Partial<PostHogConfig> = {
-    api_host: 'https://us.i.posthog.com',
+    api_host: PUBLIC_POSTHOG_HOST,
     capture_pageview: true,
     capture_pageleave: true,
     disable_session_recording: true,
     enable_heatmaps: false,
     autocapture: false,
-    debug: false,
+    // debug: false,
 };
 
-export const posthogServerConfig = {
-    host: 'https://us.i.posthog.com'
-};
-
-export const getPostHogKey = () => {
-    if (!PUBLIC_POSTHOG_KEY) {
-        console.error('❌ PostHog: API key is not defined');
-    }
-    return PUBLIC_POSTHOG_KEY;
-};
+export function getPostHogProjectToken() {
+    return PUBLIC_POSTHOG_PROJECT_TOKEN;
+}
