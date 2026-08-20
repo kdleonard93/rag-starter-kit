@@ -1,2 +1,129 @@
 @import 'tailwindcss';
 @plugin '@tailwindcss/typography';
+
+/* ============================================================
+   RAG Starter Kit — pastel Svelte-brand theme
+   Svelte orange (#ff3e00) softened into peach/coral pastels,
+   warm cream canvas, lavender-mist user bubbles, peach assistant
+   bubbles. Distinct from ChatGPT/Claude/DeepSeek palettes.
+   ============================================================ */
+
+@theme {
+  /* Brand accent (Svelte orange → pastel coral) */
+  --color-brand-50: #fff5f1;
+  --color-brand-100: #ffe6dc;
+  --color-brand-200: #ffcdb8;
+  --color-brand-300: #ffaa8c;
+  --color-brand-400: #ff7f5c;
+  --color-brand-500: #ff5a36;
+  --color-brand-600: #ed3b16;
+  --color-brand-700: #c82c10;
+  --color-brand-800: #9f2410;
+  --color-brand-900: #7c1f11;
+
+  /* User bubbles: lavender-mist */
+  --color-mist-50: #f6f5ff;
+  --color-mist-100: #ece9ff;
+  --color-mist-200: #dcd6ff;
+  --color-mist-300: #c3baff;
+  --color-mist-400: #a294f0;
+
+  /* Assistant bubbles: peach-cream */
+  --color-cream-50: #fffaf6;
+  --color-cream-100: #fff1e8;
+  --color-cream-200: #ffe3d3;
+
+  /* Ink (warm neutrals instead of pure grey) */
+  --color-ink-50: #faf8f5;
+  --color-ink-100: #f3efe9;
+  --color-ink-200: #e6e0d6;
+  --color-ink-300: #d2c9bb;
+  --color-ink-400: #a89e8e;
+  --color-ink-500: #756b5c;
+  --color-ink-600: #564e42;
+  --color-ink-700: #3b352d;
+  --color-ink-800: #26221d;
+  --color-ink-900: #17140f;
+
+  --font-sans: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+}
+
+/* Base */
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-behavior: smooth;
+}
+
+body {
+  background:
+    radial-gradient(120% 80% at 100% 0%, var(--color-cream-100) 0%, transparent 60%),
+    radial-gradient(100% 70% at 0% 100%, var(--color-mist-100) 0%, transparent 55%),
+    var(--color-ink-50);
+  color: var(--color-ink-800);
+  font-family: var(--font-sans);
+  min-height: 100vh;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+  }
+}
+
+/* Accessible focus ring (visible on brand + cream) */
+:where(a, button, input, textarea, select, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--color-brand-500);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Remove default focus ring only when not from keyboard */
+:where(a, button, input, textarea, select):focus:not(:focus-visible) {
+  outline: none;
+}
+
+/* Typing indicator */
+@keyframes rag-dot {
+  0%, 80%, 100% { transform: translateY(0); opacity: 0.4; }
+  40% { transform: translateY(-4px); opacity: 1; }
+}
+.rag-dot { animation: rag-dot 1.2s ease-in-out infinite; }
+.rag-dot:nth-child(2) { animation-delay: 0.15s; }
+.rag-dot:nth-child(3) { animation-delay: 0.3s; }
+
+/* Gentle fade-in for new messages */
+@keyframes rag-fade {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.rag-fade { animation: rag-fade 0.25s ease-out; }
+
+/* Citation superscript links inside assistant text */
+.rag-cite {
+  font-size: 0.7em;
+  vertical-align: super;
+  line-height: 0;
+  color: var(--color-brand-600);
+  text-decoration: none;
+  padding: 0 0.1em;
+  font-weight: 600;
+}
+.rag-cite:hover { text-decoration: underline; }
+
+/* Scrollbar (subtle, themed) */
+.rag-scroll::-webkit-scrollbar { width: 10px; }
+.rag-scroll::-webkit-scrollbar-thumb {
+  background: var(--color-ink-300);
+  border-radius: 999px;
+  border: 3px solid transparent;
+  background-clip: padding-box;
+}
+.rag-scroll::-webkit-scrollbar-thumb:hover { background: var(--color-ink-400); background-clip: padding-box; }
+.rag-scroll { scrollbar-width: thin; scrollbar-color: var(--color-ink-300) transparent; }

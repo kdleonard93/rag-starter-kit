@@ -8,15 +8,19 @@ import type { RetrievedChunk } from '../retrieve/retriever.js';
 import OpenAI from 'openai';
 
 const PROMPT = ChatPromptTemplate.fromTemplate(`
-  You are a grounded Q&A assistant for a small business.
-  Answer ONLY from the context below. For every claim, cite the source as [N] matching the numbered sources.
-  If the answer is not fully supported by the context, respond ONLY with:
-  "I don't have that information in the provided documents."
+  Rules:
+  1. If the context contains the answer — even if the question's wording differs from the source wording (synonyms, paraphrases, related terms like "implementation" vs "integration", "cost" vs "charge", "price" vs "pricing") — answer it and cite every claim with [N].
+  2. If the context genuinely does not address the question, respond ONLY with: "I don't have that information in the provided documents."
+  3. Use the closest matching source. Do not combine unrelated facts to fabricate an answer.
+  4. Every claim MUST end with a citation [N] referring to the numbered context item it comes from.
+
 
   Context (numbered):
   {numberedContext}
 
   Question: {question}
+
+  Answer
 `);
 
 export interface Citation {
