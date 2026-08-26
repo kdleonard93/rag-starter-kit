@@ -81,9 +81,9 @@
 	}
 
 	const suggestions = [
-		'What is this?',
+		'What is Digital Dopamine?',
 		'Summarize the key points',
-		'How does it work?',
+		'What is the RAG Starter Kit?',
 	];
 </script>
 
