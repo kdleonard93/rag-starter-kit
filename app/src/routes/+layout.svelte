@@ -53,6 +53,6 @@
 	</main>
 
 	<footer class="border-t border-ink-200/70 py-4 text-center text-xs text-ink-400">
-		<p>RAG Starter Kit — grounded answers, cited sources.</p>
+		<p>Digital Dopamine's RAG Starter Kit</p>
 	</footer>
 </div>
