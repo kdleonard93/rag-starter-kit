@@ -24,6 +24,7 @@
 		const out: { kind: 'text' | 'cite'; value: string; n?: number }[] = [];
 		let last = 0;
 		let m: RegExpExecArray | null;
+		// biome-ignore lint/suspicious/noAssignInExpressions: idiomatic regex loop
 		while ((m = re.exec(text)) !== null) {
 			const n = Number(m[1]);
 			if (!valid.has(n)) continue;
