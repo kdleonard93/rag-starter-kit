@@ -7,9 +7,9 @@ app/.svelte-kit
 chroma-data
 ollama-data
 *.log
-.env
-.env.*
-!.env.example
+**/.env
+**/.env.*
+!**/.env.example
 evals
 docs
 *.pdf

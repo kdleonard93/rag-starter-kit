@@ -28,3 +28,6 @@ local-db.*
 *.db-shm
 *.sqlite3-wal
 *.sqlite3-shm
+
+# Local vector store data
+chroma-data/

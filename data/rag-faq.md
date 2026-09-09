@@ -16,8 +16,8 @@
 - Data scientists exploring semantic search use cases
 - Startups building internal knowledge bases and chatbots
 
-### Q3: What programming languages does it support?
-**A:** The core kit is available in **Python (3.10+)** and **TypeScript/Node.js (18+)**. Community-maintained ports exist for Go and Rust.
+### Q3: What is the tech stack?
+**A:** The core kit is built using **TypeScript/Node.js (18+)**, **Chroma**, **PostHog**, **Ollama**, and **LangChain**.
 
 ### Q4: How long does setup take?
 **A:** On a modern machine with Docker installed, a basic working setup takes **under 15 minutes**. A production-ready deployment typically takes 1–2 days including authentication, monitoring, and scaling configuration.

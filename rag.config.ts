@@ -1,4 +1,4 @@
-export type FolderSource = { type: 'folder'; path: string; glob: string };
+export type FolderSource = { type: 'folder'; path: string };
 export type WebSource = { type: 'web'; urls: string[] };
 export type GDriveSource = { type: 'gdrive'; folderId: string };
 export type Source = FolderSource | WebSource | GDriveSource;
@@ -10,7 +10,7 @@ export type LLMProvider =
 
 export default {
   sources: [
-    { type: 'folder', path: './data', glob: '**/*.{md,txt}' },
+    { type: 'folder', path: './data' },
     // { type: 'web', urls: ['https://example.com/docs'] },
     // { type: 'gdrive', folderId: '...' },
   ] as Source[],

@@ -18,6 +18,7 @@ WORKDIR /docker_root
 COPY app/ ./app/
 COPY core/ ./core/
 COPY rag.config.ts ./
+COPY data/ /data/
 
 WORKDIR /docker_root/app
 RUN pnpm run build

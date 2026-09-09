@@ -5,14 +5,34 @@
 	let result: string | null = null;
 	let chunks: number | null = null;
 
+	function callReindex(token?: string) {
+		return fetch('/api/admin/reindex', {
+			method: 'POST',
+			headers: token ? { Authorization: `Bearer ${token}` } : {}
+		});
+	}
+
 	async function reindex() {
 		status = 'loading';
 		result = null;
 		chunks = null;
 		try {
-			const res = await fetch('/api/admin/reindex', { method: 'POST' });
+			let res = await callReindex(localStorage.getItem('admin_token') ?? undefined);
+
+			// Server requires a token but none is stored yet — ask once and retry.
+			if (res.status === 401) {
+				const token = window.prompt('Admin token required to re-index:');
+				if (token === null) {
+					status = 'error';
+					result = 'Cancelled: admin token required.';
+					return;
+				}
+				localStorage.setItem('admin_token', token);
+				res = await callReindex(token);
+			}
+
 			const data = await res.json();
-			if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+			if (!res.ok) throw new Error(data.error ?? `${res.status} ${res.statusText}`);
 			status = 'done';
 			chunks = data.chunks;
 			result = `Re-indexed ${data.chunks} chunk${data.chunks === 1 ? '' : 's'}.`;

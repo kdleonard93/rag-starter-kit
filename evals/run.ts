@@ -38,4 +38,7 @@ async function run() {
   console.log(`\nGrounded-answer score: ${(score * 100).toFixed(1)}%`);
 }
 
-run();
+run().catch((err) => {
+  console.error(err);
+  process.exit(1);
+});

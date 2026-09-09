@@ -28,10 +28,14 @@ services:
     container_name: rag-starter-kit-app-1
     environment:
       - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
-      - PUBLIC_POSTHOG_KEY=${PUBLIC_POSTHOG_KEY:-}
+      - ADMIN_TOKEN=${ADMIN_TOKEN:-}
+      - PUBLIC_POSTHOG_PROJECT_TOKEN=${PUBLIC_POSTHOG_PROJECT_TOKEN:-}
       - PUBLIC_POSTHOG_HOST=${PUBLIC_POSTHOG_HOST:-}
       - CHROMA_URL=http://chroma:8000
       - OLLAMA_BASE_URL=http://ollama:11434
+      # RAG_DATA_DIR overrides the import.meta.url-derived path, which points
+      # into the build output in the bundled image; /data holds the COPY'd docs.
+      - RAG_DATA_DIR=/data
     ports:
       - "3000:3000"
     depends_on:
