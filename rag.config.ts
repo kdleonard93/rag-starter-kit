@@ -72,29 +72,13 @@ export default {
   judge: {
     enabled: false,
     active: 'prompt' as 'prompt' | 'systemone',
-
-    // Decide whether the chunks can answer the question *before* generating, so
-    // an out-of-scope question is refused by decision rather than by the answer
-    // prompt's judgement. On a refusal this replaces the generation, so it costs
-    // nothing; on an answerable question it adds one short call.
     answerability: true,
-
-    // After generating, report the sentences whose cited chunk does not support
-    // them. 'flag' only reports; 'off' disables. Nothing is rewritten — dropping
-    // claims needs eval evidence first.
     groundedness: 'flag' as 'off' | 'flag',
-
     prompt: {
       backend: 'prompt',
       temperature: 0,
       numPredict: 16, // one letter, or a short list of item numbers
     } satisfies JudgeProvider,
-
-    // Not active. `nimble:9b` is already pulled and fits the decision model's
-    // 8,192-token context, but it cannot share 24 GB with gemma4:12b, so turning
-    // this on means a model swap per question. Answerability is implemented;
-    // groundedness is not, and degrades to "unparsed" if you switch.
-    //   ollama pull nimble   →   active: 'systemone'
     systemone: {
       backend: 'systemone',
       model: 'nimble',
