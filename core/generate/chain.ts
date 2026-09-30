@@ -5,14 +5,26 @@ import { RunnableLambda } from '@langchain/core/runnables';
 import { basename } from 'node:path';
 import type { RagConfig } from '../config.js';
 import type { RetrievedChunk } from '../retrieve/retriever.js';
+import { REFUSAL } from './refusal.js';
 import OpenAI from 'openai';
 
+// REFUSAL is interpolated at module load rather than passed as a variable, so
+// this prompt and the answerability gate cannot drift apart. It must not contain
+// braces, which ChatPromptTemplate would read as a placeholder.
 const PROMPT = ChatPromptTemplate.fromTemplate(`
   Rules:
-  1. If the context contains the answer — even if the question's wording differs from the source wording (synonyms, paraphrases, related terms like "implementation" vs "integration", "cost" vs "charge", "price" vs "pricing") — answer it and cite every claim with [N].
-  2. If the context genuinely does not address the question, respond ONLY with: "I don't have that information in the provided documents."
-  3. Use the closest matching source. Do not combine unrelated facts to fabricate an answer.
+  1. If the context contains the answer, even if the question's wording differs from the source wording (synonyms, paraphrases, related terms like "implementation" vs "integration", "cost" vs "charge", "price" vs "pricing"), answer it and cite every claim with [N].
+  2. Refuse ONLY when no context item is relevant to the question's subject at all. Do not refuse because
+     the question is terse or omits its subject: a bare question like "how much do they charge?" is
+     answered by the context item covering pricing for one of the organization's services, give that
+     answer and name the service it applies to, using the wording of the context item. When refusing is
+     warranted, respond ONLY with:
+     "${REFUSAL}"
+  3. Use the closest matching source. Refer to products, services and figures using exactly the terms the
+     context uses, never infer or invent a name the context does not state. Do not combine unrelated facts
+     to fabricate an answer.
   4. Every claim MUST end with a citation [N] referring to the numbered context item it comes from.
+  5. Answer in at most three short sentences. Do not restate the context or add preamble.
 
 
   Context (numbered):
@@ -110,6 +122,11 @@ function buildChain(cfg: Pick<RagConfig, 'llm'>) {
   const model = new ChatOllama({
     model: llm.model,
     baseUrl: llm.baseUrl,
+    numCtx: llm.numCtx,
+    numPredict: llm.numPredict,
+    keepAlive: llm.keepAlive,
+    temperature: llm.temperature,
+    ...(llm.think === undefined ? {} : { think: llm.think }),
   });
   return PROMPT.pipe(model);
 }
