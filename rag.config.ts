@@ -17,7 +17,8 @@ export default {
   chunking: { chunkSize: 500, chunkOverlap: 50 },
   embeddings: {
     provider: 'ollama',
-    model: 'nomic-embed-text',
+    // model: 'nomic-embed-text',
+    model: 'qwen3-embedding:0.6b',
     baseUrl: process.env.OLLAMA_BASE_URL ?? 'http://localhost:11434',
   },
   vectorStore: {

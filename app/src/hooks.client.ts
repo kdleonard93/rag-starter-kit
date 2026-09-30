@@ -3,9 +3,6 @@ import type { HandleClientError } from '@sveltejs/kit';
 import { env } from '$env/dynamic/public';
 import posthog from 'posthog-js';
 
-// $env/dynamic/public is read at runtime (unlike $env/static/public, which is
-// baked in at build time), so PUBLIC_POSTHOG_* can be configured via
-// environment variables in production (e.g. docker-compose).
 const POSTHOG_TOKEN = env.PUBLIC_POSTHOG_PROJECT_TOKEN;
 const POSTHOG_HOST = env.PUBLIC_POSTHOG_HOST;
 

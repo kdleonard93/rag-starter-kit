@@ -4,7 +4,7 @@ import { getCollection } from './store/vectorStore.js';
 import { retrieve } from './retrieve/retriever.js';
 import { generate } from './generate/chain.js';
 
-const QUESTION = 'Give me a summary of Digital Dopamine.';
+const QUESTION = 'Is Oreo a bad dog?';
 
 async function main() {
   // Load, chunk, embed & store — shared with /api/admin/reindex

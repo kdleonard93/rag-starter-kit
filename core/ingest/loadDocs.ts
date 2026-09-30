@@ -6,9 +6,6 @@ import { resolve, isAbsolute } from 'node:path';
 import cfg, { repoRoot } from '../config.js';
 import type { RagConfig } from '../config.js';
 
-// repoRoot is derived from import.meta.url, which points into the build output
-// once bundled (e.g. the Docker image), so relative source paths need an
-// override there. Set RAG_DATA_DIR to the directory holding your sources.
 const dataBase = process.env.RAG_DATA_DIR ?? repoRoot;
 
 async function loadWebPage(url: string): Promise<Document[]> {
