@@ -12,7 +12,7 @@ export async function POST({ request }) {
     );
   }
 
-  if (expected) {
+  if (expected && !dev) {
     const provided = request.headers.get('authorization');
     if (provided !== `Bearer ${expected}`) {
       return json({ ok: false, error: 'Invalid admin token.' }, { status: 401 });

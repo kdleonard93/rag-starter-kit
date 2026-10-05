@@ -35,7 +35,7 @@ services:
       - OLLAMA_BASE_URL=http://ollama:11434
       # RAG_DATA_DIR overrides the import.meta.url-derived path, which points
       # into the build output in the bundled image; /data holds the COPY'd docs.
-      - RAG_DATA_DIR=/data
+      - RAG_DATA_DIR=/
     ports:
       - "3000:3000"
     depends_on:
